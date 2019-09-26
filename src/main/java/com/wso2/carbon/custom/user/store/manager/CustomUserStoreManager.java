@@ -59,7 +59,6 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
             throw new UserStoreException("Unsupported credential type", var26);
         }
 
-        //null check
         this.specialWordCheck(credentialObj);
 
         this.userAttributesCheck(userName, credentialObj);
