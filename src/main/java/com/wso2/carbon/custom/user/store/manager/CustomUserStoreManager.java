@@ -18,13 +18,6 @@ import java.util.regex.Pattern;
 public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     private static Log log = LogFactory.getLog(CustomUserStoreManager.class);
 
-    private boolean isFormatCorrect(String regularExpression, char[] attribute) {
-        CharBuffer charBuffer = CharBuffer.wrap(attribute);
-        Pattern p2 = Pattern.compile(regularExpression);
-        Matcher m2 = p2.matcher(charBuffer);
-        return m2.find();
-    }
-
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         log.info("Custom update policy");
@@ -77,22 +70,24 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     }
 
     private void validatePasswordLastUpdate(String userName) throws UserStoreException {
-        String[] properties = {"pwdLastSet"};
-        Map<String, String> userProperties = getUserPropertyValues(userName, properties, "default");
-        String lastChanged = userProperties.get("pwdLastSet");
-        long adTime = convertAdTime(lastChanged);
-        Date changedTime = new Date(adTime);
-        GregorianCalendar gc = new GregorianCalendar();
-        gc.add(10, -24);
-        Date date = gc.getTime();
-        if (!changedTime.before((date))) {
-            log.info("Can not change password twice within 24 hours.");
-            throw new UserStoreException("Can not change password twice within 24 hours.");
+        String[] passwordLastUpdateAttribute = {this.realmConfig.getUserStoreProperty("PasswordLastUpdatedColumnName")};
+        Map<String, String> userProperties = getUserPropertyValues(userName, passwordLastUpdateAttribute, "default");
+        if (!userProperties.isEmpty()) {
+            String lastChanged = userProperties.get(passwordLastUpdateAttribute[0]);
+            long adTime = convertAdTime(lastChanged);
+            Date changedTime = new Date(adTime);
+            GregorianCalendar gc = new GregorianCalendar();
+            gc.add(10, -24);
+            Date date = gc.getTime();
+            if (!changedTime.before((date))) {
+                log.info("Can not change password twice within 24 hours.");
+                throw new UserStoreException("Can not change password twice within 24 hours.");
+            }
         }
     }
 
     private void specialWordCheck(Secret credentialObj) throws UserStoreException {
-        String[] specialWords = this.realmConfig.getUserStoreProperty("specialWords").split((","));
+        String[] specialWords = this.realmConfig.getUserStoreProperty("PasswordSpecialWordsCheck").split((","));
         log.info("Loading Special Words");
 
         if (specialWords.length > 0) {
@@ -109,7 +104,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     private void userAttributesCheck(String userName, Secret credentialObj) throws UserStoreException {
         ArrayList<String> usrAttrValues = new ArrayList<>();
         log.info("Loading User Attributes");
-        String[] properties = {"sn", "givenName"};
+        String[] properties = this.realmConfig.getUserStoreProperty("PasswordUserAttributesCheck").split((","));
         Map<String, String> userProperties = getUserPropertyValues(userName, properties, "default");
 
         for (String prop : properties) {
@@ -161,6 +156,14 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         }
 
         log.info("Regular Expression check passed");
+    }
+
+
+    private boolean isFormatCorrect(String regularExpression, char[] attribute) {
+        CharBuffer charBuffer = CharBuffer.wrap(attribute);
+        Pattern p2 = Pattern.compile(regularExpression);
+        Matcher m2 = p2.matcher(charBuffer);
+        return m2.find();
     }
 
 
