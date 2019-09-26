@@ -3,10 +3,14 @@ package com.wso2.carbon.custom.user.store.manager;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-import org.wso2.carbon.user.core.UserStoreException;
+import org.wso2.carbon.user.core.claim.ClaimManager;
+import org.wso2.carbon.user.api.RealmConfiguration;
+import org.wso2.carbon.user.core.UserRealm;
 import org.wso2.carbon.user.core.ldap.ActiveDirectoryUserStoreManager;
+import org.wso2.carbon.user.core.profile.ProfileConfigurationManager;
 import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
+import org.wso2.carbon.user.core.UserStoreException;
 
 
 import java.nio.CharBuffer;
@@ -17,6 +21,13 @@ import java.util.regex.Pattern;
 
 public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     private static Log log = LogFactory.getLog(CustomUserStoreManager.class);
+
+    public CustomUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties, ClaimManager
+            claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
+            throws UserStoreException {
+        super(realmConfig, properties, claimManager, profileManager, realm, tenantId);
+        log.info("CustomUserStoreManager initialized...");
+    }
 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
@@ -65,7 +76,6 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
 
         this.passwordCriteriaCheck(credentialObj);
 
-
     }
 
     private void validatePasswordLastUpdate(String userName) throws UserStoreException {
@@ -91,7 +101,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
 
         if (specialWords.length > 0) {
             if (Arrays.asList(specialWords).contains(String.valueOf(credentialObj.getChars()))) {
-                log.info("Special Word Detected");
+                log.debug("Special Word Detected: " + Arrays.toString(specialWords));
 //                return false;
                 throw new UserStoreException("Special Words detected in the password");
 
