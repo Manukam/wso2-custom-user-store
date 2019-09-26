@@ -29,6 +29,10 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         log.info("CustomUserStoreManager initialized...");
     }
 
+    public CustomUserStoreManager() {
+
+    }
+
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         log.info("Custom update policy");
