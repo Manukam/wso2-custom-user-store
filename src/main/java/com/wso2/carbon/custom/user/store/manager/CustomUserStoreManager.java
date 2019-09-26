@@ -440,10 +440,10 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         regMatchNumber = regularNumberExpression == null || this.isFormatCorrect(regularNumberExpression, credentialObj.getChars());
         regMatchSpecialChar = regularSpecialCharExpression == null || this.isFormatCorrect(regularSpecialCharExpression, credentialObj.getChars());
 
-        log.info("Capital Check: " + regMatchCapital);
-        log.info("Simple Check: " + regMatchSimple);
-        log.info("Number Check: " + regMatchNumber);
-        log.info("Special: " + regMatchSpecialChar);
+//        log.info("Capital Check: " + regMatchCapital);
+//        log.info("Simple Check: " + regMatchSimple);
+//        log.info("Number Check: " + regMatchNumber);
+//        log.info("Special: " + regMatchSpecialChar);
 
         regExValidationCount.add(regMatchCapital);
         regExValidationCount.add(regMatchSimple);
