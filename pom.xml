@@ -46,6 +46,7 @@
                 <configuration>
                     <source>1.7</source>
                     <target>1.7</target>
+
                 </configuration>
             </plugin>
             <plugin>
@@ -55,14 +56,14 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${pom.artifactId}</Bundle-Name>
+                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${project.artifactId}</Bundle-Name>
                         <Private-Package>
-                            org.wso2.sample.user.store.manager.internal
+                            com.wso2.carbon.custom.user.store.manager.internal
                         </Private-Package>
                         <Export-Package>
-                            !org.wso2.sample.user.store.manager.internal,
-                            org.wso2.sample.user.store.manager.*,
+                            !com.wso2.carbon.custom.user.store.manager.internal,
+                            com.wso2.carbon.custom.user.store.manager.*,
                         </Export-Package>
                         <Import-Package>
                             javax.servlet; version=2.4.0,
