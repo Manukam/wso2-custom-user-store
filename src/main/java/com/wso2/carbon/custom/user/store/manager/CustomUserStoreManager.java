@@ -26,7 +26,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     private static Log log = LogFactory.getLog(CustomUserStoreManager.class);
 
     private final long AD_TIME_TO_UNIX_DIVISION = 10000L;
-    private final long AD_TIME_TO_UNIX_ADDITION = +11644473600000L;
+    private final long AD_TIME_TO_UNIX_ADDITION = 11644473600000L;
 
     public CustomUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties, ClaimManager
             claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
@@ -41,14 +41,15 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         log.debug("Custom update policy");
 
+        validatePasswordLastUpdate(userName); //24hr Password policy
         customPasswordValidityChecks(newCredential, userName); //Custom Password Validation Policy
         super.doUpdateCredentialByAdmin(userName, newCredential);
 
-        validatePasswordLastUpdate(userName); //24hr Password policy
+
     }
 
     private long convertAdTime(String lastChanged) {
-        return (Long.parseLong(lastChanged) / AD_TIME_TO_UNIX_DIVISION) - AD_TIME_TO_UNIX_ADDITION;
+        return (Long.parseLong(lastChanged) / AD_TIME_TO_UNIX_DIVISION) - + AD_TIME_TO_UNIX_ADDITION;
     }
 
     @Override
