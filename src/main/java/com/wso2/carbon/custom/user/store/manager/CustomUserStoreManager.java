@@ -93,7 +93,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
             gc.add(10, -24);
             Date date = gc.getTime();
             if (!changedTime.before((date))) {
-                log.info("Can not change password twice within 24 hours.");
+                log.debug("Can not change password twice within 24 hours.");
                 throw new UserStoreException("Can not change password twice within 24 hours.");
             }
         }
