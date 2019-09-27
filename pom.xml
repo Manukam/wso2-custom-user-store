@@ -66,8 +66,6 @@
                             com.wso2.carbon.custom.user.store.manager.*,
                         </Export-Package>
                         <Import-Package>
-                            javax.servlet; version=2.4.0,
-                            javax.servlet.http; version=2.4.0,
                             org.wso2.carbon.base.*,
                             org.wso2.carbon.user.core.*,
                             <!--                            org.apache.lucene.*,-->
