@@ -35,7 +35,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
-        log.info("Custom update policy");
+        log.debug("Custom update policy");
 
         this.customPasswordValidityChecks(newCredential, userName); //Custom Password Validation Policy
         super.doUpdateCredentialByAdmin(userName, newCredential);
@@ -116,7 +116,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
 
     private void userAttributesCheck(String userName, Secret credentialObj) throws UserStoreException {
         ArrayList<String> usrAttrValues = new ArrayList<>();
-        log.info("Loading User Attributes");
+        log.debug("Loading User Attributes");
         String[] properties = this.realmConfig.getUserStoreProperty("PasswordUserAttributesCheck").split((","));
         Map<String, String> userProperties = getUserPropertyValues(userName, properties, "default");
 
@@ -124,7 +124,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
             usrAttrValues.add(userProperties.get(prop));
         }
         if (usrAttrValues.contains(String.valueOf(credentialObj.getChars()))) {
-            log.info("Password contains user attribute values");
+            log.debug("Password contains user attribute values");
             throw new UserStoreException("Password contains user attribute values");
         }
 
@@ -137,7 +137,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         boolean regMatchSpecialChar;
         int validityCount = 0;
         ArrayList<Boolean> regExValidationCount = new ArrayList<>();
-        log.info("Loading Regular Expressions");
+        log.debug("Loading Regular Expressions");
         String regularCapitalExpression = this.realmConfig.getUserStoreProperty("PasswordCapitalJavaRegEx");
         String regularSimpleExpression = this.realmConfig.getUserStoreProperty("PasswordSimpleJavaRegEx");
         String regularNumberExpression = this.realmConfig.getUserStoreProperty("PasswordNumbersJavaRegEx");
@@ -163,12 +163,12 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         }
 
         if (validityCount < 3) {
-            log.info("Regular Expression check failed");
+            log.debug("Regular Expression check failed");
 //                    return false;
             throw new UserStoreException("Password doesn't meet the expected criteria");
         }
 
-        log.info("Regular Expression check passed");
+        log.debug("Regular Expression check passed");
     }
 
 
