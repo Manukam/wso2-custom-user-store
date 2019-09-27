@@ -64,8 +64,8 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential) throws
             UserStoreException {
 
-        customPasswordValidityChecks(newCredential, userName); //Custom validation rules
         validatePasswordLastUpdate(userName); //24hr Password change policy
+        customPasswordValidityChecks(newCredential, userName); //Custom validation rules
         super.doUpdateCredential(userName, newCredential, oldCredential);
 
     }
