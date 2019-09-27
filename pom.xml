@@ -41,11 +41,9 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>2.3.1</version>
-                <inherited>true</inherited>
                 <configuration>
-                    <encoding>UTF-8</encoding>
                     <source>1.7</source>
                     <target>1.7</target>
                 </configuration>
@@ -57,22 +55,24 @@
                 <extensions>true</extensions>
                 <configuration>
                     <instructions>
-                        <Bundle-SymbolicName>${project.artifactId}</Bundle-SymbolicName>
-                        <Bundle-Name>${project.artifactId}</Bundle-Name>
+                        <Bundle-SymbolicName>${pom.artifactId}</Bundle-SymbolicName>
+                        <Bundle-Name>${pom.artifactId}</Bundle-Name>
                         <Private-Package>
-                            com.wso2.carbon.custom.user.store.manager.internal
+                            org.wso2.sample.user.store.manager.internal
                         </Private-Package>
                         <Export-Package>
-                            !com.wso2.carbon.custom.user.store.manager.internal, com.wso2.carbon.custom.user.store.manager.*
+                            !org.wso2.sample.user.store.manager.internal,
+                            org.wso2.sample.user.store.manager.*,
                         </Export-Package>
                         <Import-Package>
+                            javax.servlet; version=2.4.0,
+                            javax.servlet.http; version=2.4.0,
+                            org.wso2.carbon.base.*,
                             org.wso2.carbon.user.core.*,
-                            org.wso2.carbon.user.api.*,
-                            org.wso2.carbon.utils.*,
-                            org.apache.commons.logging.*,
-                            org.osgi.framework.*,
-                            org.osgi.service.component.*
+                            <!--                            org.apache.lucene.*,-->
+                            *;resolution:=optional
                         </Import-Package>
+                        <DynamicImport-Package>*</DynamicImport-Package>
                     </instructions>
                 </configuration>
             </plugin>

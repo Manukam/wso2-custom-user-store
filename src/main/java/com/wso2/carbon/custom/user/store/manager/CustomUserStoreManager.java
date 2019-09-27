@@ -14,13 +14,19 @@ import org.wso2.carbon.user.core.UserStoreException;
 
 
 import java.nio.CharBuffer;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
+import java.util.GregorianCalendar;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     private static Log log = LogFactory.getLog(CustomUserStoreManager.class);
+
+    private final long AD_TIME_TO_UNIX_DIVISION = 10000L;
+    private final long AD_TIME_TO_UNIX_ADDITION = +11644473600000L;
 
     public CustomUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties, ClaimManager
             claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
@@ -29,28 +35,26 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         log.info("CustomUserStoreManager initialized...");
     }
 
-    public CustomUserStoreManager() {
-
-    }
+    public CustomUserStoreManager() { }
 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         log.debug("Custom update policy");
 
-        this.customPasswordValidityChecks(newCredential, userName); //Custom Password Validation Policy
+        customPasswordValidityChecks(newCredential, userName); //Custom Password Validation Policy
         super.doUpdateCredentialByAdmin(userName, newCredential);
 
-        this.validatePasswordLastUpdate(userName); //24hr Password policy
+        validatePasswordLastUpdate(userName); //24hr Password policy
     }
 
     private long convertAdTime(String lastChanged) {
-        return (Long.parseLong(lastChanged) / 10000L) - +11644473600000L;
+        return (Long.parseLong(lastChanged) / AD_TIME_TO_UNIX_DIVISION) - AD_TIME_TO_UNIX_ADDITION;
     }
 
     @Override
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims, String
             profileName, boolean requirePasswordChange) throws UserStoreException {
-        this.customPasswordValidityChecks(credential, userName); //Custom Validation Rules.
+        customPasswordValidityChecks(credential, userName); //Custom Validation Rules.
         super.doAddUser(userName, credential, roleList, claims, profileName);
     }
 
@@ -59,8 +63,8 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     public void doUpdateCredential(String userName, Object newCredential, Object oldCredential) throws
             UserStoreException {
 
-        this.customPasswordValidityChecks(newCredential, userName); //Custom validation rules
-        this.validatePasswordLastUpdate(userName); //24hr Password change policy
+        customPasswordValidityChecks(newCredential, userName); //Custom validation rules
+        validatePasswordLastUpdate(userName); //24hr Password change policy
         super.doUpdateCredential(userName, newCredential, oldCredential);
 
     }
@@ -74,11 +78,11 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
             throw new UserStoreException("Unsupported credential type", var26);
         }
 
-        this.specialWordCheck(credentialObj);
+        specialWordCheck(credentialObj);
 
-        this.userAttributesCheck(userName, credentialObj);
+        userAttributesCheck(userName, credentialObj);
 
-        this.passwordCriteriaCheck(credentialObj);
+        passwordCriteriaCheck(credentialObj);
 
     }
 

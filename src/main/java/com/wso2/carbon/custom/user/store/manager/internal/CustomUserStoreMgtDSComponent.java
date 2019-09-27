@@ -26,12 +26,11 @@ public class CustomUserStoreMgtDSComponent {
     @Activate
     protected void activate(ComponentContext ctxt) {
         try {
-
             CustomUserStoreManager customUserStoreManager = new CustomUserStoreManager();
             ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), customUserStoreManager, null);
             log.info("CustomUserStoreManager bundle activated successfully..");
-        } catch (Throwable e) {
-            log.error("****", e);
+        } catch (Throwable storeError) {
+            log.error("ERROR when activating Custom User Store", storeError);
         }
     }
 
@@ -48,8 +47,8 @@ public class CustomUserStoreMgtDSComponent {
             cardinality = ReferenceCardinality.MANDATORY,
             policy = ReferencePolicy.DYNAMIC,
             unbind = "unsetRealmService")
-    protected void setRealmService(RealmService rlmService) {
-        realmService = rlmService;
+    protected void setRealmService(RealmService realmService) {
+        realmService = realmService;
     }
 
     protected void unsetRealmService(RealmService realmService) {
