@@ -15,7 +15,7 @@ import org.osgi.service.component.annotations.ReferencePolicy;
 
 
 @Component(
-        name = "custom.authenticator.dscomponent",
+        name = "com.wso2.carbon.custom.user.store.manager",
         immediate = true
 
 )
@@ -25,10 +25,14 @@ public class CustomUserStoreMgtDSComponent {
 
     @Activate
     protected void activate(ComponentContext ctxt) {
+        try {
 
-        CustomUserStoreManager customUserStoreManager = new CustomUserStoreManager();
-        ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), customUserStoreManager, null);
-        log.info("CustomUserStoreManager bundle activated successfully..");
+            CustomUserStoreManager customUserStoreManager = new CustomUserStoreManager();
+            ctxt.getBundleContext().registerService(UserStoreManager.class.getName(), customUserStoreManager, null);
+            log.info("CustomUserStoreManager bundle activated successfully..");
+        } catch (Throwable e) {
+            log.error("****", e);
+        }
     }
 
     @Deactivate
