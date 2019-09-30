@@ -153,10 +153,16 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         ArrayList<Boolean> regExValidationCount = new ArrayList<>();
         log.debug("Loading Regular Expressions");
 
+        String passwordLengthExpression = this.realmConfig.getUserStoreProperty("PasswordLengthJavaRegEx");
         String regularCapitalExpression = this.realmConfig.getUserStoreProperty("PasswordCapitalJavaRegEx");
         String regularNumberExpression = this.realmConfig.getUserStoreProperty("PasswordNumbersJavaRegEx");
         String regularSimpleExpression = this.realmConfig.getUserStoreProperty("PasswordSimpleJavaRegEx");
         String regularSpecialCharExpression = this.realmConfig.getUserStoreProperty("PasswordSpecialCharJavaRegEx");
+
+        if (!(passwordLengthExpression == null || this.isFormatCorrect(passwordLengthExpression, credentialObj.getChars()))) {
+            log.debug("Regular Expression check failed");
+            throw new UserStoreException("Password doesn't meet the expected criteria");
+        }
 
         regMatchCapital = regularCapitalExpression == null
                 || this.isFormatCorrect(regularCapitalExpression, credentialObj.getChars());
