@@ -41,6 +41,6 @@
 
   `<Property name="PasswordUserAttributesCheck">sn,givenName </Property>`
   
-* To configure the password character length, please edit the `PasswordLengthJavaRegEx` property.
+* To configure the password character length, please edit the `PasswordLengthCheck` property.
  
 * Restart the IS server and the test the password validations.
