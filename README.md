@@ -19,7 +19,7 @@
 ``` bash
   mvn clean install
 ```
-* Navigate to the `/target` folder and copy and paste the `com.wso2.carbon.custom.user.store.manager-1.3.0.jar` to `IS_HOME/repository/components/dropins`
+* Navigate to the `/target` folder in the project directory and copy and paste the `com.wso2.carbon.custom.user.store.manager-1.3.0.jar` to `IS_HOME/repository/components/dropins`
 
 * Start the WSO2 IS server
 
@@ -41,6 +41,6 @@
 
   `<Property name="PasswordUserAttributesCheck">sn,givenName </Property>`
   
-* To configure the password character length, please edit the `PasswordLengthJavaRegEx` property.
+* To configure the password character length, please edit the `PasswordLengthCheck` property.
  
 * Restart the IS server and the test the password validations.
