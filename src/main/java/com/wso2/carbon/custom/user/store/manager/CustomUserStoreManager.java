@@ -12,7 +12,6 @@ import org.wso2.carbon.utils.Secret;
 import org.wso2.carbon.utils.UnsupportedSecretTypeException;
 import org.wso2.carbon.user.core.UserStoreException;
 
-
 import java.nio.CharBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -28,44 +27,44 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     private final long AD_TIME_TO_UNIX_DIVISION = 10000L;
     private final long AD_TIME_TO_UNIX_ADDITION = 11644473600000L;
 
-    public CustomUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties, ClaimManager
-            claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
+    public CustomUserStoreManager(RealmConfiguration realmConfig, Map<String, Object> properties,
+            ClaimManager claimManager, ProfileConfigurationManager profileManager, UserRealm realm, Integer tenantId)
             throws UserStoreException {
         super(realmConfig, properties, claimManager, profileManager, realm, tenantId);
+
         log.info("CustomUserStoreManager initialized...");
     }
 
-    public CustomUserStoreManager() { }
+    public CustomUserStoreManager() {
+    }
 
     @Override
     public void doUpdateCredentialByAdmin(String userName, Object newCredential) throws UserStoreException {
         log.debug("Custom update policy");
 
-        validatePasswordLastUpdate(userName); //24hr Password policy
-        customPasswordValidityChecks(newCredential, userName); //Custom Password Validation Policy
+        validatePasswordLastUpdate(userName); // 24hr Password policy
+        customPasswordValidityChecks(newCredential, userName); // Custom Password Validation Policy
         super.doUpdateCredentialByAdmin(userName, newCredential);
-
 
     }
 
     private long convertAdTime(String adTimeInMilis) {
-        return (Long.parseLong(lastChanged) / AD_TIME_TO_UNIX_DIVISION) - + AD_TIME_TO_UNIX_ADDITION;
+        return (Long.parseLong(adTimeInMilis) / AD_TIME_TO_UNIX_DIVISION) - +AD_TIME_TO_UNIX_ADDITION;
     }
 
     @Override
-    public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims, String
-            profileName, boolean requirePasswordChange) throws UserStoreException {
-        customPasswordValidityChecks(credential, userName); //Custom Validation Rules.
+    public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
+            String profileName, boolean requirePasswordChange) throws UserStoreException {
+        customPasswordValidityChecks(credential, userName); // Custom Validation Rules.
         super.doAddUser(userName, credential, roleList, claims, profileName);
     }
 
-
     @Override
-    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential) throws
-            UserStoreException {
+    public void doUpdateCredential(String userName, Object newCredential, Object oldCredential)
+            throws UserStoreException {
 
-        validatePasswordLastUpdate(userName); //24hr Password change policy
-        customPasswordValidityChecks(newCredential, userName); //Custom validation rules
+        validatePasswordLastUpdate(userName); // 24hr Password change policy
+        customPasswordValidityChecks(newCredential, userName); // Custom validation rules
         super.doUpdateCredential(userName, newCredential, oldCredential);
 
     }
@@ -88,7 +87,8 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     }
 
     private void validatePasswordLastUpdate(String userName) throws UserStoreException {
-        String[] passwordLastUpdateAttribute = {this.realmConfig.getUserStoreProperty("PasswordLastUpdatedColumnName")};
+        String[] passwordLastUpdateAttribute = {
+                this.realmConfig.getUserStoreProperty("PasswordLastUpdatedColumnName") };
         Map<String, String> userProperties = getUserPropertyValues(userName, passwordLastUpdateAttribute, "default");
         if (!userProperties.isEmpty()) {
             String lastChanged = userProperties.get(passwordLastUpdateAttribute[0]);
@@ -101,38 +101,47 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
                 log.debug("Can not change password twice within 24 hours.");
                 throw new UserStoreException("Can not change password twice within 24 hours.");
             }
+        } else {
+            log.warn("User properties for given column name is not found. Skipping Password Last update validation");
         }
     }
 
     private void specialWordCheck(Secret credentialObj) throws UserStoreException {
-        String[] specialWords = this.realmConfig.getUserStoreProperty("PasswordSpecialWordsCheck").split((","));
-        log.info("Loading Special Words");
+        String specialWordConfig = this.realmConfig.getUserStoreProperty("PasswordSpecialWordsCheck");
+        if (specialWordConfig != null) {
+            String[] specialWords = specialWordConfig.split((","));
+            log.info("Loading Special Words");
 
-        if (specialWords.length > 0) {
-            if (Arrays.asList(specialWords).contains(String.valueOf(credentialObj.getChars()))) {
-                log.debug("Special Word Detected: " + Arrays.toString(specialWords));
-//                return false;
-                throw new UserStoreException("Special Words detected in the password");
-
+            if (specialWords.length > 0) {
+                if (Arrays.asList(specialWords).contains(String.valueOf(credentialObj.getChars()))) {
+                    log.debug("Special Word Detected: " + Arrays.toString(specialWords));
+                    throw new UserStoreException("Special Words detected in the password");
+                }
             }
-//        return true;
+        } else {
+            log.warn("Values for SpecialWord Validation check not configured. Skipping validation");
         }
     }
 
     private void userAttributesCheck(String userName, Secret credentialObj) throws UserStoreException {
         ArrayList<String> usrAttrValues = new ArrayList<>();
         log.debug("Loading User Attributes");
-        String[] properties = this.realmConfig.getUserStoreProperty("PasswordUserAttributesCheck").split((","));
-        Map<String, String> userProperties = getUserPropertyValues(userName, properties, "default");
+        String userAttributesConfig = this.realmConfig.getUserStoreProperty("PasswordUserAttributesCheck");
+        if (userAttributesConfig != null) {
+            String[] properties = userAttributesConfig.split((","));
+            Map<String, String> userProperties = getUserPropertyValues(userName, properties, "default");
 
-        for (String prop : properties) {
-            usrAttrValues.add(userProperties.get(prop));
+            for (String prop : properties) {
+                usrAttrValues.add(userProperties.get(prop));
+            }
+            if (usrAttrValues.contains(String.valueOf(credentialObj.getChars()))) {
+                log.debug("Password contains user attribute values");
+                throw new UserStoreException("Password contains user attribute values");
+            }
+        } else {
+            log.warn(
+                    "Values for user attributes password validation not configured. Skipping user attributes password validation");
         }
-        if (usrAttrValues.contains(String.valueOf(credentialObj.getChars()))) {
-            log.debug("Password contains user attribute values");
-            throw new UserStoreException("Password contains user attribute values");
-        }
-
     }
 
     private void passwordCriteriaCheck(Secret credentialObj) throws UserStoreException {
@@ -143,20 +152,20 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         int validityCount = 0;
         ArrayList<Boolean> regExValidationCount = new ArrayList<>();
         log.debug("Loading Regular Expressions");
+
         String regularCapitalExpression = this.realmConfig.getUserStoreProperty("PasswordCapitalJavaRegEx");
-        String regularSimpleExpression = this.realmConfig.getUserStoreProperty("PasswordSimpleJavaRegEx");
         String regularNumberExpression = this.realmConfig.getUserStoreProperty("PasswordNumbersJavaRegEx");
+        String regularSimpleExpression = this.realmConfig.getUserStoreProperty("PasswordSimpleJavaRegEx");
         String regularSpecialCharExpression = this.realmConfig.getUserStoreProperty("PasswordSpecialCharJavaRegEx");
 
-        regMatchCapital = regularCapitalExpression == null || this.isFormatCorrect(regularCapitalExpression,
-                credentialObj.getChars());
-        regMatchSimple = regularSimpleExpression == null || this.isFormatCorrect(regularSimpleExpression,
-                credentialObj.getChars());
-        regMatchNumber = regularNumberExpression == null || this.isFormatCorrect(regularNumberExpression,
-                credentialObj.getChars());
-        regMatchSpecialChar = regularSpecialCharExpression == null || this.isFormatCorrect(regularSpecialCharExpression,
-                credentialObj.getChars());
-
+        regMatchCapital = regularCapitalExpression == null
+                || this.isFormatCorrect(regularCapitalExpression, credentialObj.getChars());
+        regMatchSimple = regularSimpleExpression == null
+                || this.isFormatCorrect(regularSimpleExpression, credentialObj.getChars());
+        regMatchNumber = regularNumberExpression == null
+                || this.isFormatCorrect(regularNumberExpression, credentialObj.getChars());
+        regMatchSpecialChar = regularSpecialCharExpression == null
+                || this.isFormatCorrect(regularSpecialCharExpression, credentialObj.getChars());
 
         regExValidationCount.add(regMatchCapital);
         regExValidationCount.add(regMatchSimple);
@@ -164,12 +173,12 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         regExValidationCount.add(regMatchSpecialChar);
 
         for (boolean validity : regExValidationCount) {
-            if (validity) validityCount++;
+            if (validity)
+                validityCount++;
         }
 
         if (validityCount < 3) {
             log.debug("Regular Expression check failed");
-//                    return false;
             throw new UserStoreException("Password doesn't meet the expected criteria");
         }
 
@@ -182,6 +191,5 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         Matcher m2 = p2.matcher(charBuffer);
         return m2.find();
     }
-
 
 }
