@@ -105,7 +105,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     private void specialWordCheck(Secret credentialObj) throws UserStoreException {
         String specialWordConfig = this.realmConfig.getUserStoreProperty("PasswordSpecialWordsCheck");
         if (specialWordConfig != null) {
-            String[] specialWords = specialWordConfig.split((","));
+            String[] specialWords = specialWordConfig.split((",").trim());
             if (specialWords.length > 0) {
                 if (Arrays.asList(specialWords).contains(String.valueOf(credentialObj.getChars()))) {
                     log.debug("Special Word Detected: " + Arrays.toString(specialWords));
@@ -128,7 +128,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         log.debug("Loading User Attributes");
         String userAttributesConfig = this.realmConfig.getUserStoreProperty("PasswordUserAttributesCheck");
         if (userAttributesConfig != null) {
-            String[] properties = userAttributesConfig.split((","));
+            String[] properties = userAttributesConfig.split((",").trim());
             Map<String, String> userProperties = getUserPropertyValues(userName, properties, "default");
 
             for (String prop : properties) {
