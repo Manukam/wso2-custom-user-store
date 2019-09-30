@@ -1,17 +1,17 @@
 # wso2-custom-user-store
 
 > A Custom Secondary User Store manager for WSO2 IS 5.7 that uses Active Directory.
-> This user store manager has the capability the below custom password validations,
-  * Password should contain 20 letters.
-  * Password should comply with 3 of the following to be deemed valid.
+> This user store manager has the capability to perform the following custom password validations,
+  * Password should contain more than 20 characters. (Configurable)
+  * Password should comply with 3 of the following to be deemed valid. (Configurable)
     * Contain Capital letters [A-Z]
     * Contain Simple letters [a-z]
     * Contain numbers [0-9]
     * Contain a special character [$,_,-,.]
    
   * Can not change the password twice within 24 hours.
-  * Can not contain pre-defined special words
-  * Can not contain user attributes, such as first name, last name of user.
+  * Can not contain pre-defined special words (Configurable)
+  * Can not contain user attributes, such as first name, last name of user. (Configurable)
 
 ## Build Setup
 
@@ -40,5 +40,7 @@
 * To configure the attributes of the user the password should be validated against, add a new `property` inside the `UserStoreManager` and name it `PasswordUserAttributesCheck` and define the attributes as shown below.
 
   `<Property name="PasswordUserAttributesCheck">sn,givenName </Property>`
+  
+* To configure the password character length, please edit the `PasswordLengthJavaRegEx` property.
  
- * Restart the IS server and the test the password validations.
+* Restart the IS server and the test the password validations.
