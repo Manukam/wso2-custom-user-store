@@ -48,7 +48,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
 
     }
 
-    private long convertAdTime(String lastChanged) {
+    private long convertAdTime(String adTimeInMilis) {
         return (Long.parseLong(lastChanged) / AD_TIME_TO_UNIX_DIVISION) - + AD_TIME_TO_UNIX_ADDITION;
     }
 
@@ -75,8 +75,8 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         Secret credentialObj;
         try {
             credentialObj = Secret.getSecret(credential);
-        } catch (UnsupportedSecretTypeException var26) {
-            throw new UserStoreException("Unsupported credential type", var26);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
         }
 
         specialWordCheck(credentialObj);
@@ -175,7 +175,6 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
 
         log.debug("Regular Expression check passed");
     }
-
 
     private boolean isFormatCorrect(String regularExpression, char[] attribute) {
         CharBuffer charBuffer = CharBuffer.wrap(attribute);
