@@ -132,11 +132,10 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
             Map<String, String> userProperties = getUserPropertyValues(userName, properties, "default");
 
             for (String prop : properties) {
-                usrAttrValues.add(userProperties.get(prop));
-            }
-            if (usrAttrValues.contains(String.valueOf(credentialObj.getChars()))) {
-                log.debug("Password contains user attribute values");
-                throw new UserStoreException("Password contains user attribute values");
+                if(String.valueOf(credentialObj.getChars()).contains(userProperties.get(prop))) {
+                    log.debug("Password contains user attribute values");
+                    throw new UserStoreException("Password contains user attribute values");
+                }
             }
         } else {
             log.warn(
