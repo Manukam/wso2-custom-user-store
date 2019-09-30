@@ -2,7 +2,7 @@
 
 > A Custom Secondary User Store manager for WSO2 IS 5.7 that uses Active Directory.
 > This user store manager has the capability the below custom password validations,
-  * Password should contain 20 letters.
+  * Password should contain 20 characters.
   * Password should comply with 3 of the following to be deemed valid.
     * Contain Capital letters [A-Z]
     * Contain Simple letters [a-z]
