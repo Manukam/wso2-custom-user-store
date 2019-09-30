@@ -53,7 +53,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
         customPasswordValidityChecks(credential, userName); // Custom Validation Rules.
-        super.doAddUser(userName, credential, roleList, claims, profileName);
+        super.doAddUser(userName, credential, roleList, claims, profileName, requirePasswordChange);
     }
 
     @Override
