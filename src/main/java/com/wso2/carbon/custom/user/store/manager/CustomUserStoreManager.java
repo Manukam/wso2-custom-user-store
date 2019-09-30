@@ -43,7 +43,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         log.debug("Custom update policy");
 
         validatePasswordLastUpdate(userName); // 24hr Password policy
-        userAttributesCheck(userName, credentialObj);
+        userAttributesCheck(userName, newCredential);
         customPasswordValidityChecks(newCredential, userName); // Custom Password Validation Policy
         super.doUpdateCredentialByAdmin(userName, newCredential);
 
@@ -61,7 +61,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
             throws UserStoreException {
 
         validatePasswordLastUpdate(userName); // 24hr Password change policy
-        userAttributesCheck(userName, credentialObj); //User Attribute Check
+        userAttributesCheck(userName, newCredential); //User Attribute Check
         customPasswordValidityChecks(newCredential, userName); // Custom validation rules
         super.doUpdateCredential(userName, newCredential, oldCredential);
 
@@ -117,7 +117,13 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         }
     }
 
-    private void userAttributesCheck(String userName, Secret credentialObj) throws UserStoreException {
+    private void userAttributesCheck(String userName, Object credential) throws UserStoreException {
+        Secret credentialObj;
+        try {
+            credentialObj = Secret.getSecret(credential);
+        } catch (UnsupportedSecretTypeException e) {
+            throw new UserStoreException("Unsupported credential type", e);
+        }
         ArrayList<String> usrAttrValues = new ArrayList<>();
         log.debug("Loading User Attributes");
         String userAttributesConfig = this.realmConfig.getUserStoreProperty("PasswordUserAttributesCheck");
