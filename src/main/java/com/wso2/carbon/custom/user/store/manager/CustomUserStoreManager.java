@@ -43,13 +43,10 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         log.debug("Custom update policy");
 
         validatePasswordLastUpdate(userName); // 24hr Password policy
+        userAttributesCheck(userName, credentialObj);
         customPasswordValidityChecks(newCredential, userName); // Custom Password Validation Policy
         super.doUpdateCredentialByAdmin(userName, newCredential);
 
-    }
-
-    private long convertAdTime(String adTimeInMilis) {
-        return (Long.parseLong(adTimeInMilis) / AD_TIME_TO_UNIX_DIVISION) - +AD_TIME_TO_UNIX_ADDITION;
     }
 
     @Override
@@ -64,6 +61,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
             throws UserStoreException {
 
         validatePasswordLastUpdate(userName); // 24hr Password change policy
+        userAttributesCheck(userName, credentialObj); //User Attribute Check
         customPasswordValidityChecks(newCredential, userName); // Custom validation rules
         super.doUpdateCredential(userName, newCredential, oldCredential);
 
@@ -79,12 +77,10 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         }
 
         specialWordCheck(credentialObj);
-
-        userAttributesCheck(userName, credentialObj);
-
         passwordCriteriaCheck(credentialObj);
 
     }
+
 
     private void validatePasswordLastUpdate(String userName) throws UserStoreException {
         String[] passwordLastUpdateAttribute = {
@@ -110,8 +106,6 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         String specialWordConfig = this.realmConfig.getUserStoreProperty("PasswordSpecialWordsCheck");
         if (specialWordConfig != null) {
             String[] specialWords = specialWordConfig.split((","));
-            log.info("Loading Special Words");
-
             if (specialWords.length > 0) {
                 if (Arrays.asList(specialWords).contains(String.valueOf(credentialObj.getChars()))) {
                     log.debug("Special Word Detected: " + Arrays.toString(specialWords));
@@ -190,6 +184,10 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         Pattern p2 = Pattern.compile(regularExpression);
         Matcher m2 = p2.matcher(charBuffer);
         return m2.find();
+    }
+
+    private long convertAdTime(String adTimeInMilis) {
+        return (Long.parseLong(adTimeInMilis) / AD_TIME_TO_UNIX_DIVISION) - +AD_TIME_TO_UNIX_ADDITION;
     }
 
 }
