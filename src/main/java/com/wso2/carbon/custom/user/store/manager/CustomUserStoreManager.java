@@ -153,15 +153,15 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         ArrayList<Boolean> regExValidationCount = new ArrayList<>();
         log.debug("Loading Regular Expressions");
 
-        String passwordLengthExpression = this.realmConfig.getUserStoreProperty("PasswordLengthJavaRegEx");
+        String passwordLength = this.realmConfig.getUserStoreProperty("PasswordLengthCheck");
         String regularCapitalExpression = this.realmConfig.getUserStoreProperty("PasswordCapitalJavaRegEx");
         String regularNumberExpression = this.realmConfig.getUserStoreProperty("PasswordNumbersJavaRegEx");
         String regularSimpleExpression = this.realmConfig.getUserStoreProperty("PasswordSimpleJavaRegEx");
         String regularSpecialCharExpression = this.realmConfig.getUserStoreProperty("PasswordSpecialCharJavaRegEx");
 
-        if (!(passwordLengthExpression == null || this.isFormatCorrect(passwordLengthExpression, credentialObj.getChars()))) {
-            log.debug("Regular Expression check failed");
-            throw new UserStoreException("Password doesn't meet the expected criteria");
+        if (Integer.valueOf(passwordLength) > credentialObj.getChars().length){
+            log.debug("Password length does not meet the expected criteria");
+            throw new UserStoreException("Password does not meet the expected criteria");
         }
 
         regMatchCapital = regularCapitalExpression == null
@@ -196,6 +196,13 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         Pattern p2 = Pattern.compile(regularExpression);
         Matcher m2 = p2.matcher(charBuffer);
         return m2.find();
+    }
+
+    private boolean isFormatCorrectPasswordLength(String regularExpression, char[] attribute) {
+        CharBuffer charBuffer = CharBuffer.wrap(attribute);
+        Pattern p2 = Pattern.compile(regularExpression);
+        Matcher m2 = p2.matcher(charBuffer);
+        return m2.lookingAt();
     }
 
     private long convertAdTime(String adTimeInMilis) {
