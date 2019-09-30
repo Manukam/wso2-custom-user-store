@@ -40,5 +40,7 @@
 * To configure the attributes of the user the password should be validated against, add a new `property` inside the `UserStoreManager` and name it `PasswordUserAttributesCheck` and define the attributes as shown below.
 
   `<Property name="PasswordUserAttributesCheck">sn,givenName </Property>`
+  
+* To configure the password character length, please edit the `PasswordLengthJavaRegEx` property.
  
- * Restart the IS server and the test the password validations.
+* Restart the IS server and the test the password validations.
