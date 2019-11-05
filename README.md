@@ -15,7 +15,7 @@
 
 ## Build Setup
 
-* Navigate the project root directory and execute the following.
+* Navigate to the project root directory and execute the following.
 ``` bash
   mvn clean install
 ```
