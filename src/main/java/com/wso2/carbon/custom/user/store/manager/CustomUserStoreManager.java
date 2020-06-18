@@ -52,8 +52,8 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     @Override
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
-//        customPasswordValidityChecks(credential, userName); // Custom Validation Rules.
-        super.doAddUser(userName, credential, roleList, claims, profileName);
+        customPasswordValidityChecks(credential, userName); // Custom Validation Rules.
+        super.doAddUser(userName, credential, roleList, claims, profileName, requirePasswordChange);
     }
 
     @Override
@@ -103,7 +103,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     private void specialWordCheck(Secret credentialObj) throws UserStoreException {
         String specialWordConfig = this.realmConfig.getUserStoreProperty("PasswordSpecialWordsCheck");
         if (specialWordConfig != null) {
-            String[] specialWords = specialWordConfig.split((","));
+            String[] specialWords = specialWordConfig.split((",").trim());
             if (specialWords.length > 0) {
                 if (Arrays.asList(specialWords).contains(String.valueOf(credentialObj.getChars()))) {
                     log.debug("Special Word Detected: " + Arrays.toString(specialWords));
@@ -126,15 +126,14 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         log.debug("Loading User Attributes");
         String userAttributesConfig = this.realmConfig.getUserStoreProperty("PasswordUserAttributesCheck");
         if (userAttributesConfig != null) {
-            String[] properties = userAttributesConfig.split((","));
+            String[] properties = userAttributesConfig.split((",").trim());
             Map<String, String> userProperties = getUserPropertyValues(userName, properties, "default");
 
             for (String prop : properties) {
-                usrAttrValues.add(userProperties.get(prop));
-            }
-            if (usrAttrValues.contains(String.valueOf(credentialObj.getChars()))) {
-                log.debug("Password contains user attribute values");
-                throw new UserStoreException("Password contains user attribute values");
+                if(String.valueOf(credentialObj.getChars()).contains(userProperties.get(prop))) {
+                    log.debug("Password contains user attribute values");
+                    throw new UserStoreException("Password contains user attribute values");
+                }
             }
         } else {
             log.warn(
@@ -151,10 +150,16 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         ArrayList<Boolean> regExValidationCount = new ArrayList<>();
         log.debug("Loading Regular Expressions");
 
+        String passwordLength = this.realmConfig.getUserStoreProperty("PasswordLengthCheck");
         String regularCapitalExpression = this.realmConfig.getUserStoreProperty("PasswordCapitalJavaRegEx");
         String regularNumberExpression = this.realmConfig.getUserStoreProperty("PasswordNumbersJavaRegEx");
         String regularSimpleExpression = this.realmConfig.getUserStoreProperty("PasswordSimpleJavaRegEx");
         String regularSpecialCharExpression = this.realmConfig.getUserStoreProperty("PasswordSpecialCharJavaRegEx");
+
+        if (Integer.valueOf(passwordLength) > credentialObj.getChars().length){
+            log.debug("Password length does not meet the expected criteria");
+            throw new UserStoreException("Password does not meet the expected criteria");
+        }
 
         regMatchCapital = regularCapitalExpression == null
                 || this.isFormatCorrect(regularCapitalExpression, credentialObj.getChars());
@@ -188,6 +193,13 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         Pattern p2 = Pattern.compile(regularExpression);
         Matcher m2 = p2.matcher(charBuffer);
         return m2.find();
+    }
+
+    private boolean isFormatCorrectPasswordLength(String regularExpression, char[] attribute) {
+        CharBuffer charBuffer = CharBuffer.wrap(attribute);
+        Pattern p2 = Pattern.compile(regularExpression);
+        Matcher m2 = p2.matcher(charBuffer);
+        return m2.lookingAt();
     }
 
     private long convertAdTime(String adTimeInMilis) {
