@@ -52,7 +52,7 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
     @Override
     public void doAddUser(String userName, Object credential, String[] roleList, Map<String, String> claims,
             String profileName, boolean requirePasswordChange) throws UserStoreException {
-        customPasswordValidityChecks(credential, userName); // Custom Validation Rules.
+//        customPasswordValidityChecks(credential, userName); // Custom Validation Rules.
         super.doAddUser(userName, credential, roleList, claims, profileName);
     }
 
@@ -75,10 +75,8 @@ public class CustomUserStoreManager extends ActiveDirectoryUserStoreManager {
         } catch (UnsupportedSecretTypeException e) {
             throw new UserStoreException("Unsupported credential type", e);
         }
-
         specialWordCheck(credentialObj);
         passwordCriteriaCheck(credentialObj);
-
     }
 
 
